@@ -1,0 +1,142 @@
+.intro_pic {
+    filter: contrast(60%);
+    transition: 0.5s ease;
+}
+
+.intro_pic:hover {
+    filter: contrast(110%);
+}
+
+.btn_style {
+    background-color: #f59e0b;
+    border-radius: 7px;
+    width: 80px;
+    height: 80px;
+    color: white;
+    transition: 0.2s ease;
+    border-radius: 50%;
+    box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+}
+
+.btn_style:nth-child(1) {
+    background-color: black;
+    margin-right: 2rem;
+}
+
+.btn_style:hover {
+    transform: translateY(-0.5rem);
+}
+
+.icon_in4 {
+    width: 30px;
+    padding: 5px;
+    margin-right: 1.4rem;
+    margin-top: 2rem;
+    position: relative;
+
+    .border {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: transparent;
+        border-radius: 50%;
+        border: 2px dashed #000;
+    }
+}
+
+.icon_in4:hover {
+    .border {
+        animation: rounded 2s infinite linear;
+    }
+}
+
+.boxes {
+    width: 265px;
+    padding: 20px;
+    background-color: #115e59;
+    margin-top: 5rem;
+    border-radius: 15% 0;
+    position: relative;
+    box-shadow: 4px 3px 12px 4px rgb(0 0 0 / 25%);
+    transition: 0.2s ease;
+
+    .dishes {
+        position: absolute;
+        top: -45%;
+        left: 15%;
+    }
+
+    .prices {
+        position: absolute;
+        background-color: #f59e0b;
+        border-radius: 50%;
+        top: -7%;
+        right: -7%;
+        width: 40px;
+        height: 40px;
+        font-weight: bold;
+        line-height: 35px;
+        color: white;
+    }
+}
+
+.boxes:hover {
+    transform: translateY(-0.75rem);
+    cursor: pointer;
+}
+
+.btn_leaf {
+    background-color: black;
+    color: white;
+    font-size: 1.3rem;
+    padding: 0.5rem 1.5rem;
+    border-radius: 50px 5%;
+    margin-top: 1rem;
+    transition: 0.2s ease;
+}
+
+.btn_leaf:hover {
+    background-color: #3d880b;
+}
+
+.decor {
+    position: absolute;
+    right: -2rem;
+}
+
+.listDecoration {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    font-size: 1.5rem;
+    // list-style-image: url('../img/check.svg');
+}
+
+.listDecoration {
+    li {
+        background: url('../img/check.svg') 1px no-repeat  ; /* <-- change `left` & `top` too for extra control */
+        margin: 0;
+        padding: 0px 0px 1px 36px;
+        /* reset styles (optional): */
+        list-style: none;
+        margin: 0;
+      }
+}
+
+@keyframes rounded {
+    from {
+        transform: rotate(0);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@media (min-width: 1000px) {
+    .intro_pic {
+        max-width: 550px;
+    }
+}

@@ -1,0 +1,12 @@
+@use 'variables' as v;
+
+.menuItem {
+    margin-right: 3rem;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.menuItem:hover {
+    color: v.$clr-orange;
+    border-bottom: 1px dashed;
+}
