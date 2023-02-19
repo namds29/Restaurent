@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const redirectURL = 'auth/google/callback';
 const querystring = require('querystring');
-
+import fetch from "node-fetch"
 
 const login = async (req, res) => {
     const { name, password } = req.body;
@@ -58,76 +58,71 @@ function getGoogleAuthURL() {
     return `${rootUrl}?${querystring.stringify(options)}`;
 }
 
-// async function getTokens({
-//     code,
-//     clientId,
-//     clientSecret,
-//     redirectUri,
-// }) {
-//     /*
-//      * Uses the code to get tokens
-//      * that can be used to fetch the user's profile
-//      */
-//     const url = "https://oauth2.googleapis.com/token";
-//     const values = {
-//         code,
-//         client_id: clientId,
-//         client_secret: clientSecret,
-//         redirect_uri: redirectUri,
-//         grant_type: "authorization_code",
-//     };
+ function getTokens({
+    code,
+    clientId,
+    clientSecret,
+    redirectUri,
+}) {
+    /*
+     * Uses the code to get tokens
+     * that can be used to fetch the user's profile
+     */
+    const url = "https://oauth2.googleapis.com/token";
+    const values = {
+        code,
+        client_id: clientId,
+        client_secret: clientSecret,
+        redirect_uri: redirectUri,
+        grant_type: "authorization_code",
+    };
 
-//     const data = fetch(url, {
-//         method: 'POST',
-//         body: querystring.stringify(values),
-//         credentials: 'same-origin',
-//         headers: {
-//             "Content-Type": "application/x-www-form-urlencoded",
-//         },
-//     })
-//         .then((res) => console.log(res)
-//         )
-//         .catch((error) => {
-//             console.error(`Failed to fetch auth tokens`);
-//             throw new Error(error.message);
-//         });
-//     return data
-// }
-// const getUserFromGoogle = async (req, res) => {
-//     const code = req.query.code;
+    const data =  fetch(url, {
+        method: 'POST',
+        body: querystring.stringify(values),
+        credentials: 'same-origin',
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+        },
+    })
+        .then((res) => res.data
+        )
+        .catch((error) => {
+            console.error(`Failed to fetch auth tokens`);
+            throw new Error(error.message);
+        });
+    return data
+}
+const getUserFromGoogle = async (req, res) => {
+    const code = req.query.code;
 
-//     const data = await getTokens({
-//         code,
-//         clientId: process.env.GOOGLE_CLIENT_ID,
-//         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-//         redirectUri: `${process.env.SERVER_URL}/${redirectURL}`,
-//     });
-//     res.send(data)
-//     // Fetch the user's profile with the access token and bearer
-//     // const googleUser = await fetch( `https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${access_token}`)
-//     //   .get(
-//     //     `https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${access_token}`,
-//     //     {
-//     //       headers: {
-//     //         Authorization: `Bearer ${id_token}`,
-//     //       },
-//     //     }
-//     //   )
-//     //   .then((res) => res.data)
-//     //   .catch((error) => {
-//     //     console.error(`Failed to fetch user`);
-//     //     throw new Error(error.message);
-//     //   });
+    const { id_token, access_token } = await getTokens({
+        code,
+        clientId: process.env.GOOGLE_CLIENT_ID,
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+        redirectUri: `${process.env.SERVER_URL}/${redirectURL}`,
+    });
+    // Fetch the user's profile with the access token and bearer
+    const googleUser = await fetch( `https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${access_token}`, {
+        headers: {
+          Authorization: `Bearer ${id_token}`,
+        },
+      })
+      .then((res) => console.log(res))
+      .catch((error) => {
+        console.error(`Failed to fetch user`);
+        throw new Error(error.message);
+      });
 
-//     // const token = jwt.sign(googleUser, JWT_SECRET);
+    const token = jwt.sign(googleUser, JWT_SECRET);
 
-//     // res.cookie(COOKIE_NAME, token, {
-//     //   maxAge: 900000,
-//     //   httpOnly: true,
-//     //   secure: false,
-//     // });
+    res.cookie(COOKIE_NAME, token, {
+      maxAge: 900000,
+      httpOnly: true,
+      secure: false,
+    });
 
-//     // res.redirect(UI_ROOT_URI);
-// } 
+    res.redirect(UI_ROOT_URI);
+} 
 
-module.exports = { login, logout, authenToken, getGoogleAuthURL  };
+export default { login, logout, authenToken, getGoogleAuthURL,getUserFromGoogle  };

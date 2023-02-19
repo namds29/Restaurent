@@ -10,6 +10,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "type": "module",
   "dependencies": {
     "bcrypt": "^5.1.0",
     "bcryptjs": "^2.4.3",
@@ -17,9 +18,11 @@
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
-    "jsonwebtoken": "^8.5.1",
+    "jsonwebtoken": "^9.0.0",
     "mysql2": "^2.3.3",
-    "next": "^13.1.1"
+    "next": "^13.1.1",
+    "node-fetch": "^3.3.0",
+    "nodemon": "^2.0.20"
   },
   "devDependencies": {
     "typescript": "^4.9.3"

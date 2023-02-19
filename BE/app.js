@@ -1,10 +1,13 @@
-require('dotenv').config();
-const express = require('express');
+import dotenv from 'dotenv'
+dotenv.config();
+import express from 'express';
 const app = express();
-const cors = require("cors");
-const cookieParser = require('cookie-parser')
+import cors from "cors";
+import cookieParser from 'cookie-parser';
 
-const userRouter = require('./routes/users.router');
+import auth from '../BE/auth/auth.js';
+import userRouter from './routes/users.router.js';
+const redirectURI = "auth/google/callback";
 
 const PORT = process.env.PORT || 5000;
 app.use(express.json());
@@ -13,6 +16,8 @@ app.use(cors({
     credentials: true,
     origin: 'http://localhost:3000'
 }));
+app.get(`/${redirectURI}`, auth.getUserFromGoogle)
+
 app.use('/api/', userRouter);
 
 app.listen(PORT, () => {
