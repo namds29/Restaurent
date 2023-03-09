@@ -1,31 +1,34 @@
-require('dotenv').config();
-const Customer = require('../models/users.model');
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
-const redirectURL = 'auth/google/callback';
-const querystring = require('querystring');
+import dotenv from 'dotenv'
+dotenv.config();
+import Customer from '../models/users.model.js';
+import jwt from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
+import querystring from 'querystring';
 import fetch from "node-fetch"
 
+
+const redirectURI = 'api/auth/google/callback';
 const login = async (req, res) => {
-    const { name, password } = req.body;
-    const data = await Customer.getAccountByName(name).catch(err => console.log(err));
+    const { username, password } = req.body;
+    const data = await Customer.getAccountByUsername(username).catch(err => console.log(err));
     if (!data) {
         return res.status(401).send('No Account here')
     } else {
         await bcrypt.compare(password, data[0].password).then(function (result) {
             if (!result) return res.status(401).send('username or password is incorrect');
-            const accessToken = jwt.sign({ name }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1d' });
+            const accessToken = jwt.sign({ username }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1d' });
             res.cookie('jwt', accessToken, {
                 httpOnly: true,
                 maxAge: 24 * 60 * 60 * 1000
             })
-            return res.json({ data: data[0].name, token: accessToken });
+            return res.json({ data: data[0].username, token: accessToken });
         });
     }
 };
 const authenToken = async (req, res, next) => {
     const authorization = req.headers['authorization'];
     // Bearer token
+    console.log(authorization);
     const token = authorization.split(' ')[1]
     console.log('authen: ', token);
     if (!token) res.sendStatus(401);
@@ -45,7 +48,7 @@ const logout = async (req, res) => {
 function getGoogleAuthURL() {
     const rootUrl = "https://accounts.google.com/o/oauth2/v2/auth";
     const options = {
-        redirect_uri: `${process.env.SERVER_URL}/${redirectURL}`,
+        redirect_uri: `${process.env.SERVER_URL}/${redirectURI}`,
         client_id: process.env.GOOGLE_CLIENT_ID,
         access_type: "offline",
         response_type: "code",
@@ -58,12 +61,7 @@ function getGoogleAuthURL() {
     return `${rootUrl}?${querystring.stringify(options)}`;
 }
 
- function getTokens({
-    code,
-    clientId,
-    clientSecret,
-    redirectUri,
-}) {
+async function getTokens({ code }) {
     /*
      * Uses the code to get tokens
      * that can be used to fetch the user's profile
@@ -71,58 +69,54 @@ function getGoogleAuthURL() {
     const url = "https://oauth2.googleapis.com/token";
     const values = {
         code,
-        client_id: clientId,
-        client_secret: clientSecret,
-        redirect_uri: redirectUri,
+        client_id: process.env.GOOGLE_CLIENT_ID,
+        client_secret: process.env.GOOGLE_CLIENT_SECRET_ID,
+        redirect_uri: `${process.env.SERVER_URL}/${redirectURI}`,
         grant_type: "authorization_code",
     };
-
-    const data =  fetch(url, {
-        method: 'POST',
-        body: querystring.stringify(values),
-        credentials: 'same-origin',
-        headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-        },
-    })
-        .then((res) => res.data
-        )
-        .catch((error) => {
-            console.error(`Failed to fetch auth tokens`);
-            throw new Error(error.message);
-        });
-    return data
+    try {
+        const res = await fetch(url, {
+            method: 'POST',
+            body: querystring.stringify(values),
+            credentials: 'same-origin',
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+            },
+        })
+        const result = await res.json();
+        return result
+    } catch (error) {
+        console.error(error, 'failed fetch Google token');
+        throw new Error(error.message)
+    }
 }
+
 const getUserFromGoogle = async (req, res) => {
     const code = req.query.code;
-
-    const { id_token, access_token } = await getTokens({
-        code,
-        clientId: process.env.GOOGLE_CLIENT_ID,
-        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-        redirectUri: `${process.env.SERVER_URL}/${redirectURL}`,
-    });
+    const { id_token, access_token } = await getTokens({ code });
     // Fetch the user's profile with the access token and bearer
-    const googleUser = await fetch( `https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${access_token}`, {
+    const googleUser = await fetch(`https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${access_token}`, {
         headers: {
-          Authorization: `Bearer ${id_token}`,
+            Authorization: `Bearer ${id_token}`,
         },
-      })
-      .then((res) => console.log(res))
-      .catch((error) => {
-        console.error(`Failed to fetch user`);
-        throw new Error(error.message);
-      });
+    }).then(res => res.json())
+        .catch((error) => {
+            console.error(`Failed to fetch user`);
+            throw new Error(error.message);
+        });
+    const { username, email, picture, locale, name } = await googleUser;
+    const data = await Customer.getAccountByEmail(email);
+    if (!data) {
+        await Customer.insertCustomer(username, '', email, picture, locale, name);
+    }
+    const token = jwt.sign({ googleUser }, process.env.ACCESS_TOKEN_SECRET);
 
-    const token = jwt.sign(googleUser, JWT_SECRET);
-
-    res.cookie(COOKIE_NAME, token, {
-      maxAge: 900000,
-      httpOnly: true,
-      secure: false,
+    res.cookie('auth_token', token, {
+        maxAge: 900000,
+        httpOnly: true,
+        secure: false,
     });
+    res.redirect(process.env.FE_URL);
+}
 
-    res.redirect(UI_ROOT_URI);
-} 
-
-export default { login, logout, authenToken, getGoogleAuthURL,getUserFromGoogle  };
+export default { login, logout, authenToken, getGoogleAuthURL, getUserFromGoogle };

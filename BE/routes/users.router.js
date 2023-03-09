@@ -1,11 +1,10 @@
 import dotenv from 'dotenv'
 dotenv.config();
-const express = require('express');
-const router = express.Router();
-const redirectURI = "auth/google";
+import express from 'express';
+import auth from '../auth/auth.js'
+import userController from '../controllers/users.controller.js';
 
-const auth = require('../auth/auth')
-const userController = require('../controllers/users.controller');
+const router = express.Router();
 
 router.get('/', auth.authenToken, userController.getListCustomer);
 router.get('/user', userController.getDetailCustomer);
@@ -13,8 +12,7 @@ router.post('/login', auth.login);
 router.post('/register', userController.register);
 router.post('/logout', auth.logout);
 router.get("/auth/google/url", (req, res) => {
-    res.send(auth.getGoogleAuthURL());
+    res.json(auth.getGoogleAuthURL());
 });
-router.get(`/${redirectURI}`, auth.getUserFromGoogle)
 
-module.exports = router;
+export default router;
