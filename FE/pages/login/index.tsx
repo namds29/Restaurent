@@ -11,14 +11,13 @@ export default function Login() {
   const router = useRouter();
   const [message, setMessage] = useState('');
   const [errorStyle, setErrorStyle] = useState(false);
-
   const submitForm = async (e: any) => {
     e.preventDefault();
     const inputValue = {
-      name: titleRef.current.value,
+      username: titleRef.current.value,
       password: bodyRef.current.value
     }
-    if (!inputValue.name || !inputValue.password) {
+    if (!inputValue.username || !inputValue.password) {
       setMessage('Please fill your usename or password!');
       setErrorStyle(true)
     }
@@ -33,12 +32,19 @@ export default function Login() {
     })
     if (res.status === 200) {
       router.push('/')  ;
+      console.log(await res.json());
+
     }
     if (res.status === 400) {
       setMessage('Please signup your account!');
       setErrorStyle(true);
     }
   }
+  const onSubmitLoginGoogle = async () => {
+    const res = await fetch('http://localhost:5000/api/auth/google/url');
+    router.push(await res.json())
+  }
+  
   return (
     <Layout>
       <div className={styles.container} >
@@ -56,11 +62,16 @@ export default function Login() {
               <input className="px-2 py-1 w-full border  rounded" type="text" ref={bodyRef} />
             </div>
             <div className="mt-4 text-center">
-              <button className="rounded border bg-lime-300 px-4" type="submit">Submit</button>
+              <button className="rounded border-gray-400 border bg-orange-400 px-4 py-1" type="submit">Submit</button>
             </div>
           </form>
+          <div className='text-center'>
+            <button onClick={onSubmitLoginGoogle}>Login with Google</button>
+          </div>
         </div>
       </div>
     </Layout>
   )
 }
+
+
