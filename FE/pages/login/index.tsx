@@ -10,6 +10,7 @@ export default function Login() {
   const bodyRef = useRef<any>();
   const router = useRouter();
   const [message, setMessage] = useState('');
+  const [accessToken, setAccessToken] = useState('');
   const [errorStyle, setErrorStyle] = useState(false);
   const submitForm = async (e: any) => {
     e.preventDefault();
@@ -32,10 +33,10 @@ export default function Login() {
     })
     if (res.status === 200) {
       router.push('/')  ;
-      console.log(await res.json());
-
+      const data = await res.json();
+      setAccessToken(data.token)
     }
-    if (res.status === 400) {
+    if (res.status >= 400) {
       setMessage('Please signup your account!');
       setErrorStyle(true);
     }
@@ -46,7 +47,7 @@ export default function Login() {
   }
   
   return (
-    <Layout>
+    <Layout token={accessToken}>
       <div className={styles.container} >
         <div className={!errorStyle ? styles.form : styles.form_error}>
           <h1 className={styles.title}>

@@ -1,18 +1,29 @@
 import Link from 'next/link'
 import { useRouter } from 'next/router';
-import { ReactNode } from 'react';
+import { ReactNode, useEffect } from 'react';
 import styles from '../styles/Header.module.scss';
 
 interface Props {
     children?: ReactNode
+    token?: any;
     // any props that come into the component
 }
-const Layout = ({ children }: Props) => {
-    const { pathname } = useRouter()
+const Layout = ({ children, token }: Props) => {
+    const { pathname } = useRouter();
+    const getDetailUser = async () => {
+        const res = await fetch('http://localhost:5000/api/user', {
+            credentials: "include"
+        });
+        console.log(await res.json());
+
+    }
+    useEffect(() => {
+        if(token) getDetailUser()
+    }, [token])
     return (
         <div className='bg-clr-homepage'>
             <header className='sticky flex py-2 px-12 justify-between font-bourton'>
-                <button className='text-3xl font-bold'>
+                <button className='text-3xl font-bold' onClick={getDetailUser}>
                     NamSmall's Restaurant
                 </button>
                 <div className='flex items-center'>
@@ -25,11 +36,12 @@ const Layout = ({ children }: Props) => {
                         <button className='text-2xl bg-amber-500 rounded-full w-20 h-20 text-white'>Register</button>
                     </Link>
                 }
-                {pathname !== '/login' &&
+                {(pathname !== '/login' ) &&
                     <Link href='/login'>
                         <button className='text-2xl bg-amber-500 rounded-full w-20 h-20 text-white'>Sign in</button>
                     </Link>
                 }
+                
             </header>
             {children}
         </div>
