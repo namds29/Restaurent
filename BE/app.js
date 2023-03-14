@@ -16,11 +16,13 @@ app.use(express.json());
 app.use(cookieParser())
 app.use(cors({
     credentials: true,
-    origin: 'http://localhost:3000'
+    origin: 'http://localhost:3000',
+    methods: ["POST", "PUT", "GET", "OPTIONS", "HEAD"],
 }));
+app.use('/api/', userRouter);
+
 app.get(`/${redirectURI}`, auth.getUserFromGoogle)
 
-app.use('/api/', userRouter);
 
 app.listen(PORT, () => {
     console.log("Open localhost: http://localhost:5000/");

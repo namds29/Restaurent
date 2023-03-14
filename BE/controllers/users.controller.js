@@ -11,16 +11,19 @@ const getListCustomer = async (req, res) => {
 }
 const getDetailCustomer = async (req, res) => {
     try {
-        const cookie = req.cookies['jwt'];
+        const cookie = req.cookies['auth_token'];
         const claims = jwt.verify(cookie, process.env.ACCESS_TOKEN_SECRET);
+        console.log(claims.googleUser.email);
         if (!claims) return res.status(401).send({ message: 'Unauthenticated' });
-
-        const user = await Customer.getAccountByUsername(claims.username);
-        console.log(user);
+        if(claims.email === undefined && claims.googleUser.email){
+            const user = await Customer.getAccountByEmail(claims.googleUser.email);
+            console.log(user);
+        }
+        const user = await Customer.getAccountByEmail(claims.email);
         const { password, ...data } = user[0]
         res.send(data)
     } catch (error) {
-        return res.status(401).send({ message: 'Unauthenticated' });
+        return res.status(401).send({ message: error });
     }
 }
 const register = async (req, res) => {

@@ -6,7 +6,7 @@ import userController from '../controllers/users.controller.js';
 
 const router = express.Router();
 
-router.get('/', auth.authenToken, userController.getListCustomer);
+router.get('/listUser', auth.authenToken, userController.getListCustomer);
 router.get('/user', userController.getDetailCustomer);
 router.post('/login', auth.login);
 router.post('/register', userController.register);

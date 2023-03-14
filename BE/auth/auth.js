@@ -6,8 +6,8 @@ import bcrypt from 'bcrypt';
 import querystring from 'querystring';
 import fetch from "node-fetch"
 
-
 const redirectURI = 'api/auth/google/callback';
+
 const login = async (req, res) => {
     const { username, password } = req.body;
     const data = await Customer.getAccountByUsername(username).catch(err => console.log(err));
@@ -17,9 +17,9 @@ const login = async (req, res) => {
         await bcrypt.compare(password, data[0].password).then(function (result) {
             if (!result) return res.status(401).send('username or password is incorrect');
             const accessToken = jwt.sign({ username }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1d' });
-            res.cookie('jwt', accessToken, {
+            res.cookie('auth_token', accessToken, {
                 httpOnly: true,
-                maxAge: 24 * 60 * 60 * 1000
+                maxAge: 24 * 60 * 60 * 1000,
             })
             return res.json({ data: data[0].username, token: accessToken });
         });
@@ -39,7 +39,7 @@ const authenToken = async (req, res, next) => {
     });
 }
 const logout = async (req, res) => {
-    res.cookie('jwt', '', { maxAge: 0 })
+    res.cookie('auth_token', '', { maxAge: 0 })
     res.send({
         message: 'logout success'
     })
