@@ -11,17 +11,18 @@ const redirectURI = 'api/auth/google/callback';
 const login = async (req, res) => {
     const { username, password } = req.body;
     const data = await Customer.getAccountByUsername(username).catch(err => console.log(err));
+    const email = await data[0].email;
     if (!data) {
         return res.status(401).send('No Account here')
     } else {
         await bcrypt.compare(password, data[0].password).then(function (result) {
             if (!result) return res.status(401).send('username or password is incorrect');
-            const accessToken = jwt.sign({ username }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1d' });
+            const accessToken = jwt.sign({ email }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1d' });
             res.cookie('auth_token', accessToken, {
                 httpOnly: true,
                 maxAge: 24 * 60 * 60 * 1000,
             })
-            return res.json({ data: data[0].username, token: accessToken });
+            return res.json({ email: data[0].email, token: accessToken });
         });
     }
 };
