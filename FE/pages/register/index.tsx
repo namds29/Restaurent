@@ -12,7 +12,7 @@ export default function Register() {
   const submitForm = async (e: any) => {
     e.preventDefault();
     const inputValue = {
-      name: usernameRef.current.value,
+      username: usernameRef.current.value,
       password: passwordRef.current.value,
       email: emailRef.current.value
     }

@@ -32,9 +32,10 @@ export default function Login() {
       },
     })
     if (res.status === 200) {
-      router.push('/')  ;
       const data = await res.json();
       setAccessToken(data.token)
+      // router.push('/')  ;
+     
     }
     if (res.status >= 400) {
       setMessage('Please signup your account!');
@@ -43,16 +44,19 @@ export default function Login() {
   }
   const onSubmitLoginGoogle = async () => {
     const res = await fetch('http://localhost:5000/api/auth/google/url');
+    
     router.push(await res.json())
+    
   }
   
   return (
-    <Layout token={accessToken}>
+    <Layout>
       <div className={styles.container} >
         <div className={!errorStyle ? styles.form : styles.form_error}>
           <h1 className={styles.title}>
             Login
           </h1>
+          {accessToken && <p>Token: {accessToken}</p>}
           <form className={styles.form_input} onSubmit={submitForm}>
             <div>
               <label htmlFor="title">Username:</label> <br />

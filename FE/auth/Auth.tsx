@@ -17,9 +17,7 @@ function withAuth(WrappedComponent: any) {
       });
       return res.status >= 200 && res.status < 300;
     }
-    // useEffect(()=>{
-    //   checkIfLoggedIn();
-    // },[])
+
     useEffect(() => {
       checkIfLoggedIn().then((isLoggedIn) => {
         if (!isLoggedIn) {
@@ -34,4 +32,6 @@ function withAuth(WrappedComponent: any) {
     return <WrappedComponent {...props} />;
   }
 }
+
+
 export { withAuth }
