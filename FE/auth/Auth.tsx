@@ -12,7 +12,7 @@ function withAuth(WrappedComponent: any) {
     const [isLoggedIn, setIsLoggedIn] = useState(null);
 
     async function checkIfLoggedIn() {
-      const res = await fetch('http://localhost:5000/api/user', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_ENDPOINT}/api/user`, {
         credentials: 'include'
       });
       return res.status >= 200 && res.status < 300;

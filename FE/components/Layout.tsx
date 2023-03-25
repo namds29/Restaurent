@@ -2,8 +2,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/router';
 import { ReactNode, useEffect, useState } from 'react';
 import styles from '../styles/Header.module.scss';
-import { parseCookies } from 'nookies';
-import { withAuth } from 'auth/Auth';
+import Cookies from 'js-cookie';
 interface Props {
     children?: ReactNode,
     data?: any
@@ -11,18 +10,8 @@ interface Props {
 }
 const Layout = ({ children, data }: Props) => {
     const router = useRouter();
-    const [token, setToken] = useState('');
-    const getDetailUser = async () => {
-        const res = await fetch('http://localhost:5000/api/user', {
-            credentials: "include",
-        });
-        console.log(await res.json());
-
-    }
-    useEffect(() => {
-        getDetailUser();
-
-    }, [])
+    console.log(data);
+    
     return (
         <div className='bg-clr-homepage'>
             <header className='sticky flex py-2 px-12 justify-between font-bourton'>
@@ -30,7 +19,6 @@ const Layout = ({ children, data }: Props) => {
                 <button className='text-3xl font-bold' onClick={() => router.push('/')}>
                     NamSmall's Restaurant
                 </button>
-                {/* <div>{token}</div> */}
                 <div className='flex items-center'>
                     <Link className={styles.menuItem} href="/">Home</Link>
                     <Link className={styles.menuItem} href="/menu">Menu</Link>
@@ -41,9 +29,9 @@ const Layout = ({ children, data }: Props) => {
                         <button className='text-2xl bg-amber-500 rounded-full w-20 h-20 text-white'>Register</button>
                     </Link>
                 }
-                {(router.pathname !== '/login' && !token) &&
+                {(router.pathname !== '/login')  &&
                     <Link href='/login'>
-                        <button className='text-2xl bg-amber-500 rounded-full w-20 h-20 text-white'>Sign in</button>
+                        <button className='text-2xl bg-amber-500 rounded-full w-16 h-16 text-white'>Sign in</button>
                     </Link>
                 }
                 { }
@@ -55,4 +43,4 @@ const Layout = ({ children, data }: Props) => {
 }
 
 
-export default withAuth(Layout) 
+export default Layout

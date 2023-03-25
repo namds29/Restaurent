@@ -17,7 +17,7 @@ export default function Register() {
       email: emailRef.current.value
     }
     console.log(inputValue);
-    await fetch('http://localhost:5000/api/register/', {
+    await fetch(`${process.env.NEXT_PUBLIC_API_ENDPOINT}/api/register/`, {
       method: 'POST',
       body: JSON.stringify(inputValue),
       headers: {
