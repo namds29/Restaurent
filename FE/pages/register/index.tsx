@@ -1,5 +1,5 @@
 
-import Layout from '@components/Layout';
+import Layout from '@components/Header';
 import { useRef, useState } from 'react';
 import styles from '../../styles/Login.module.scss'
 
@@ -27,8 +27,6 @@ export default function Register() {
       .then((json) => console.log(json));
   }
   return (
-    <Layout>
-
       <div className={styles.container} >
         <div className={!errorStyle ? styles.form : styles.form_error}>
           <h1 className={styles.title}>
@@ -53,6 +51,5 @@ export default function Register() {
           </form>
         </div>
       </div>
-    </Layout>
   )
 }

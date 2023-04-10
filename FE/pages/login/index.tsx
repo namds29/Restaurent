@@ -1,19 +1,19 @@
-import Layout from '@components/Layout';
+import Layout from '@components/Header';
+import { AppContext } from 'context-api/AppContext';
 import Head from 'next/head'
 import Image from 'next/image'
 import { useRouter } from 'next/router';
-import { useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import styles from '../../styles/Login.module.scss'
 
 export default function Login() {
   const titleRef = useRef<any>();
   const bodyRef = useRef<any>();
   const router = useRouter();
-  const [user, setUser] = useState({})
   const [message, setMessage] = useState('');
   const [accessToken, setAccessToken] = useState('');
   const [errorStyle, setErrorStyle] = useState(false);
-
+  const {avatar, setAvatar} = useContext(AppContext)
   const submitForm = async (e: any) => {
     e.preventDefault();
     const inputValue = {
@@ -34,10 +34,12 @@ export default function Login() {
       },
     })
     if (res.status === 200) {
-      const data = await res.json();
-      setAccessToken(data.token)
-      // router.push('/')  ;
-
+      const userInfor = await fetch(`${process.env.NEXT_PUBLIC_API_ENDPOINT}/api/user`, {
+        credentials: "include",
+    });
+      const data = await userInfor.json();
+      setAvatar(data.picture);
+      router.push('/') ;
     }
     if (res.status >= 400) {
       setMessage('Please signup your account!');
@@ -48,20 +50,14 @@ export default function Login() {
   const onSubmitLoginGoogle = async () => {
     const res = await fetch('http://localhost:5000/api/auth/google/url');
     router.push(await res.json())
+   
   }
-  const getDetailUser = async () => {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_ENDPOINT}/api/user`, {
-      credentials: "include",
-    })
-    const data = await res.json();
-    console.log(data);
-    if (data) setUser(data);
-  }
+
   useEffect(() => {
-    getDetailUser()
+    console.log(avatar);
+    
   }, [accessToken]);
   return (
-    <Layout data={user}>
       <div className={styles.container} >
         <div className={!errorStyle ? styles.form : styles.form_error}>
           <h1 className={styles.title}>
@@ -86,7 +82,6 @@ export default function Login() {
           </div>
         </div>
       </div>
-    </Layout>
   )
 }
 
